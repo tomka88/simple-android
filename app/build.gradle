@@ -6,6 +6,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'io.sentry.android.gradle'
+apply plugin: 'org.simple.clinic.room-instrumentation-plugin'
 
 apply from: "../quality/install-git-hook.gradle"
 
@@ -25,6 +26,10 @@ kapt {
     arg("room.incremental", "false")
     arg("room.expandProjection", "false")
   }
+}
+
+instrumentRoom {
+  applyFor = ["debug"]
 }
 
 tasks.withType(Test) {

@@ -14,6 +14,6 @@ class InstrumentRoomPlugin : Plugin<Project> {
   }
 }
 
-class InstrumentRoomExtension {
+open class InstrumentRoomExtension {
   var applyFor: Array<String> = emptyArray()
 }
