@@ -13,6 +13,8 @@ import javassist.expr.ExprEditor
 import javassist.expr.MethodCall
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.tree.ClassNode
 import java.io.File
 
 class InstrumentRoomTransform(
@@ -42,47 +44,112 @@ class InstrumentRoomTransform(
     logger.logSafely("Transform variant:$variant, apply to: ${extension.applyFor.joinToString()}, Apply transform: $shouldApplyTransform")
 
     if (shouldApplyTransform) {
-      val androidJar = androidPlugin.androidPlatformJarPath()
-      val externalDependencyJars = transformInvocation.dependencyJars()
-      val externalDependencyDirs = transformInvocation.dependencyDirs()
-      val inputClassFiles = transformInvocation
-          .inputs
-          .flatMap { it.directoryInputs }
-          .map { it.file }
+      //      transformUsingJavassist(transformInvocation)
+      transformUsingAsm(transformInvocation)
+    }
+  }
 
-      val pool = ClassPool().apply {
-        appendSystemPath()
-        insertClassPath(androidJar)
-        externalDependencyJars.forEach { insertClassPath(it.absolutePath) }
-        externalDependencyDirs.forEach { insertClassPath(it.absolutePath) }
-        inputClassFiles.forEach { insertClassPath(it.absolutePath) }
-      }
-
-      transformInvocation.inputs.forEach { transformInput ->
-        transformInput.directoryInputs.forEach { inputDirectory ->
-          val roomDaoImplementations = pool.findAllRoomDaoImplementations(inputDirectory)
-
-          logger.logSafely("Room Daos: ${roomDaoImplementations.joinToString { it.name }}")
-
-          roomDaoImplementations
-              .forEach { roomCtClass ->
-
-                logger.logSafely("----- BEGIN: ${roomCtClass.name} -----")
-
-                roomCtClass.instrument(object : ExprEditor() {
-                  override fun edit(m: MethodCall) {
-                    val calledFrom = when(val where = m.where()) {
-                      is CtMethod -> where.name
-                      is CtConstructor -> "Constructor"
-                      else -> "Unknow"
-                    }
-                    logger.logSafely(" $calledFrom --> ${m.methodName}(${m.signature})")
-                  }
-                })
-
-                logger.logSafely("----- END: ${roomCtClass.name} -----")
-              }
+  private fun transformUsingAsm(transformInvocation: TransformInvocation) {
+    val allJavaClassFiles: Map<String, File> = transformInvocation.inputs
+        .flatMap { transformInput ->
+          transformInput.directoryInputs.flatMap { inputDirectory ->
+            inputDirectory.file
+                .walkTopDown()
+                .filter(File::isJavaClassFile)
+                .map { it to inputDirectory }
+                .toList()
+          }
         }
+        .associateBy({ (classFile, directoryInput) ->
+          classFile.relativeTo(directoryInput.file).toClassnameForAsm()
+        }, { (classFile, _) ->
+          classFile
+        })
+
+    val roomDaoImplementations = allJavaClassFiles
+        .filterKeys { it.endsWith("Dao_Impl") }
+        .onEach { logger.logSafely("File: ${it.key} -> ${it.value}") }
+        .map { (_, file) -> file.toClassNode() }
+        .filter { node -> node.isRoomDaoImplementation(logger) { allJavaClassFiles.getValue(it).toClassNode() } }
+
+    logger.logSafely("Room DAO implementations: ${roomDaoImplementations.joinToString { it.name }}")
+  }
+
+  private fun File.toClassNode(): ClassNode {
+    val classReader = ClassReader(readBytes())
+
+    return ClassNode().apply {
+      classReader.accept(this, 0)
+    }
+  }
+
+  private fun ClassNode.isRoomDaoImplementation(
+      logger: Logger,
+      findClass: (String) -> ClassNode
+  ): Boolean {
+    var hasRoomDaoAnnotation = false
+
+    if (superName != null && superName != "java/lang/Object") {
+      // Check if the super class has the `@Dao` annotation
+      val superClass = findClass(superName)
+      hasRoomDaoAnnotation = superClass.hasRoomDaoAnnotation()
+    }
+
+    if (!hasRoomDaoAnnotation) {
+      hasRoomDaoAnnotation = interfaces
+          .map { findClass(it) }
+          .onEach { logger.lifecycle("Interface: ${it.name}") }
+          .any { it.hasRoomDaoAnnotation() }
+    }
+
+    return hasRoomDaoAnnotation
+  }
+
+  private fun ClassNode.hasRoomDaoAnnotation(): Boolean {
+    return invisibleAnnotations.any { it.desc == "Landroidx/room/Dao;" }
+  }
+
+  private fun transformUsingJavassist(transformInvocation: TransformInvocation) {
+    val androidJar = androidPlugin.androidPlatformJarPath()
+    val externalDependencyJars = transformInvocation.dependencyJars()
+    val externalDependencyDirs = transformInvocation.dependencyDirs()
+    val inputClassFiles = transformInvocation
+        .inputs
+        .flatMap { it.directoryInputs }
+        .map { it.file }
+
+    val pool = ClassPool().apply {
+      appendSystemPath()
+      insertClassPath(androidJar)
+      externalDependencyJars.forEach { insertClassPath(it.absolutePath) }
+      externalDependencyDirs.forEach { insertClassPath(it.absolutePath) }
+      inputClassFiles.forEach { insertClassPath(it.absolutePath) }
+    }
+
+    transformInvocation.inputs.forEach { transformInput ->
+      transformInput.directoryInputs.forEach { inputDirectory ->
+        val roomDaoImplementations = pool.findAllRoomDaoImplementations(inputDirectory)
+
+        logger.logSafely("Room Daos: ${roomDaoImplementations.joinToString { it.name }}")
+
+        roomDaoImplementations
+            .forEach { roomCtClass ->
+
+              logger.logSafely("----- BEGIN: ${roomCtClass.name} -----")
+
+              roomCtClass.instrument(object : ExprEditor() {
+                override fun edit(m: MethodCall) {
+                  val calledFrom = when (val where = m.where()) {
+                    is CtMethod -> where.name
+                    is CtConstructor -> "Constructor"
+                    else -> "Unknow"
+                  }
+                  logger.logSafely(" $calledFrom --> ${m.methodName}(${m.signature})")
+                }
+              })
+
+              logger.logSafely("----- END: ${roomCtClass.name} -----")
+            }
       }
     }
   }
@@ -134,6 +201,10 @@ private fun File.toClassname(): String = path
     .replace("\\", ".")
     .replace(".class", "")
 
+private fun File.toClassnameForAsm(): String = path
+    .replace("\\", "/")
+    .replace(".class", "")
+
 private val CtClass.isRoomDaoImplementation: Boolean
   get() {
     // extracting to a local variable since this is actually a method
@@ -146,7 +217,7 @@ private val CtClass.isRoomDaoImplementation: Boolean
       hasRoomDaoAnnotation = superclass.isRoomDao
     }
 
-    if(!hasRoomDaoAnnotation) {
+    if (!hasRoomDaoAnnotation) {
       hasRoomDaoAnnotation = interfaces.any(CtClass::isRoomDao)
     }
 

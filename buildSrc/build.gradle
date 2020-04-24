@@ -25,4 +25,5 @@ dependencies {
   implementation 'org.ow2.asm:asm-tree:8.0'
   implementation "com.android.tools.build:gradle:3.6.3"
   implementation "com.android.tools.build:gradle-api:3.6.3"
+  testImplementation "junit:junit:4.12"
 }
