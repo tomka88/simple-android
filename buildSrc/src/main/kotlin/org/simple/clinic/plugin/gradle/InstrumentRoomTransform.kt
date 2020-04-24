@@ -7,6 +7,10 @@ import com.android.build.api.transform.TransformInvocation
 import com.android.build.gradle.BaseExtension
 import javassist.ClassPool
 import javassist.CtClass
+import javassist.CtConstructor
+import javassist.CtMethod
+import javassist.expr.ExprEditor
+import javassist.expr.MethodCall
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import java.io.File
@@ -59,6 +63,25 @@ class InstrumentRoomTransform(
           val roomDaoImplementations = pool.findAllRoomDaoImplementations(inputDirectory)
 
           logger.logSafely("Room Daos: ${roomDaoImplementations.joinToString { it.name }}")
+
+          roomDaoImplementations
+              .forEach { roomCtClass ->
+
+                logger.logSafely("----- BEGIN: ${roomCtClass.name} -----")
+
+                roomCtClass.instrument(object : ExprEditor() {
+                  override fun edit(m: MethodCall) {
+                    val calledFrom = when(val where = m.where()) {
+                      is CtMethod -> where.name
+                      is CtConstructor -> "Constructor"
+                      else -> "Unknow"
+                    }
+                    logger.logSafely(" $calledFrom --> ${m.methodName}(${m.signature})")
+                  }
+                })
+
+                logger.logSafely("----- END: ${roomCtClass.name} -----")
+              }
         }
       }
     }
