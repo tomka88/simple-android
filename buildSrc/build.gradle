@@ -20,6 +20,9 @@ repositories {
 
 dependencies {
   implementation 'org.javassist:javassist:3.27.0-GA'
+  implementation 'org.ow2.asm:asm:8.0'
+  implementation 'org.ow2.asm:asm-util:8.0'
+  implementation 'org.ow2.asm:asm-tree:8.0'
   implementation "com.android.tools.build:gradle:3.6.3"
   implementation "com.android.tools.build:gradle-api:3.6.3"
 }
