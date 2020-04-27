@@ -8,6 +8,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import kotlinx.android.parcel.Parcelize
@@ -170,6 +171,29 @@ data class Patient(
         updatedAt: Instant,
         pendingStatus: SyncStatus
     )
+
+    @Query("""
+      UPDATE Patient
+      SET
+        recordedAt = MIN(
+          createdAt,
+          IFNULL(
+            (SELECT recordedAt
+            FROM BloodPressureMeasurement
+            WHERE patientUuid = :patientUuid AND deletedAt IS NULL
+            ORDER BY recordedAt ASC LIMIT 1),
+            createdAt
+          )
+        ),
+        updatedAt = :updatedAt,
+        syncStatus = :pendingStatus
+      WHERE uuid = :patientUuid
+    """)
+    abstract fun updateRecordedAt2(
+        patientUuid: UUID,
+        updatedAt: Instant,
+        pendingStatus: SyncStatus
+    ): Completable
 
     // Patient can have multiple phone numbers, and Room's support for @Relation annotations doesn't
     // support loading into constructor parameters and needs a settable property. Room does fix
