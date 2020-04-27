@@ -7,6 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'io.sentry.android.gradle'
 apply plugin: 'org.simple.clinic.room-instrumentation-plugin'
+apply plugin: 'com.google.firebase.firebase-perf'
 
 apply from: "../quality/install-git-hook.gradle"
 
@@ -346,6 +347,8 @@ dependencies {
   runtimeOnly "ch.qos.logback:logback-classic:$versions.logback"
 
   implementation "androidx.appcompat:appcompat:$versions.appcompat"
+
+  implementation "com.google.firebase:firebase-perf:$versions.firebasePerformance"
 }
 
 // This must always be present at the bottom of this file, as per:
