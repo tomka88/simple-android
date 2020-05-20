@@ -80,6 +80,15 @@ class OverdueScreenControllerTest {
   }
 
   @Test
+  fun `when open patient summary is clicked, then open patient summary screen`() {
+    val patientUuid = UUID.fromString("108ed7c8-64e5-4e23-bed2-6cab2c37b824")
+
+    uiEvents.onNext(OpenPatientSummaryClicked(patientUuid))
+
+    verify(screen).openPatientSummaryScreen(patientUuid)
+  }
+
+  @Test
   fun `when screen is created then the overdue appointments must be displayed`() {
     // given
     val overdueAppointments = listOf(

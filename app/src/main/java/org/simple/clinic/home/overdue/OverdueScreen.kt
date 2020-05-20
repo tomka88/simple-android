@@ -12,10 +12,13 @@ import org.simple.clinic.bindUiToController
 import org.simple.clinic.contactpatient.ContactPatientBottomSheet
 import org.simple.clinic.main.TheActivity
 import org.simple.clinic.router.screen.ScreenRouter
+import org.simple.clinic.summary.OpenIntention
+import org.simple.clinic.summary.PatientSummaryScreenKey
 import org.simple.clinic.util.UserClock
 import org.simple.clinic.widgets.ItemAdapter
 import org.simple.clinic.widgets.ScreenDestroyed
 import org.simple.clinic.widgets.visibleOrGone
+import org.threeten.bp.Instant
 import org.threeten.bp.format.DateTimeFormatter
 import java.util.UUID
 import javax.inject.Inject
@@ -84,5 +87,13 @@ class OverdueScreen(context: Context, attrs: AttributeSet) : RelativeLayout(cont
 
   fun openPhoneMaskBottomSheet(patientUuid: UUID) {
     activity.startActivity(ContactPatientBottomSheet.intent(context, patientUuid))
+  }
+
+  fun openPatientSummaryScreen(patientUuid: UUID) {
+    screenRouter.push(PatientSummaryScreenKey(
+        patientUuid = patientUuid,
+        intention = OpenIntention.ViewExistingPatient,
+        screenCreatedTimestamp = Instant.now(userClock)
+    ))
   }
 }

@@ -32,7 +32,8 @@ class OverdueScreenController @Inject constructor(
 
     return Observable.mergeArray(
         screenSetup(replayedEvents),
-        openPhoneMaskBottomSheet(replayedEvents)
+        openPhoneMaskBottomSheet(replayedEvents),
+        openPatientSummaryScreen(replayedEvents)
     )
   }
 
@@ -66,4 +67,9 @@ class OverdueScreenController @Inject constructor(
       events
           .ofType<CallPatientClicked>()
           .map { { ui: Ui -> ui.openPhoneMaskBottomSheet(it.patientUuid) } }
+
+  private fun openPatientSummaryScreen(events: Observable<UiEvent>): Observable<UiChange> =
+      events
+          .ofType<OpenPatientSummaryClicked>()
+          .map { { ui: Ui -> ui.openPatientSummaryScreen(it.patientUuid) } }
 }

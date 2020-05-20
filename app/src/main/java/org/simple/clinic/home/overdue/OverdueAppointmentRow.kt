@@ -96,6 +96,10 @@ data class OverdueAppointmentRow(
     holder.callButton.setOnClickListener {
       eventSubject.onNext(CallPatientClicked(patientUuid))
     }
+
+    holder.patientNameTextView.setOnClickListener {
+      eventSubject.onNext(OpenPatientSummaryClicked(patientUuid))
+    }
   }
 
   @SuppressLint("SetTextI18n")
