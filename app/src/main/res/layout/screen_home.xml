@@ -63,14 +63,14 @@
 
   </androidx.appcompat.widget.Toolbar>
 
-  <androidx.viewpager.widget.ViewPager
-    android:id="@+id/viewPager"
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_below="@id/toolbar">
+    android:layout_below="@id/toolbar"
+    android:orientation="vertical">
 
     <com.google.android.material.tabs.TabLayout
-      android:id="@+id/home_tabs"
+      android:id="@+id/homeTabLayout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="?colorPrimary"
@@ -81,6 +81,13 @@
       app:tabTextColor="@color/white48"
       tools:ignore="UnusedAttribute" />
 
-  </androidx.viewpager.widget.ViewPager>
+    <androidx.viewpager2.widget.ViewPager2
+      android:id="@+id/viewPager"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1"
+      android:orientation="horizontal" />
+
+  </LinearLayout>
 
 </org.simple.clinic.home.HomeScreen>

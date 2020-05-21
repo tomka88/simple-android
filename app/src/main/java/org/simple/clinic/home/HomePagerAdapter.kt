@@ -6,32 +6,36 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
-import androidx.viewpager.widget.PagerAdapter
+import androidx.recyclerview.widget.RecyclerView
 import org.simple.clinic.R
 import org.simple.clinic.home.overdue.OverdueScreenKey
 import org.simple.clinic.home.patients.PatientsTabScreenKey
 import org.simple.clinic.home.report.ReportsScreenKey
 
-class HomePagerAdapter(private val context: Context) : PagerAdapter() {
+class HomePagerAdapter(private val context: Context) : RecyclerView.Adapter<HomePagerAdapter.TabViewHolder>() {
 
-  override fun instantiateItem(container: ViewGroup, position: Int): Any {
-    val inflater = LayoutInflater.from(container.context)
-
-    val screenForTab = inflater.inflate(HomeTab.values()[position].key, container, false)
-    container.addView(screenForTab)
-
-    return screenForTab
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TabViewHolder {
+    val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
+    return TabViewHolder(view)
   }
 
-  override fun destroyItem(container: ViewGroup, position: Int, viewKey: Any) {
-    container.removeView(viewKey as View)
+  override fun onBindViewHolder(holder: TabViewHolder, position: Int) {
   }
 
-  override fun getPageTitle(position: Int): CharSequence = context.resources.getString(HomeTab.values()[position].title)
+  fun getPageTitle(position: Int): CharSequence = context.resources.getString(HomeTab.values()[position].title)
 
-  override fun getCount() = HomeTab.values().size
+  override fun getItemViewType(position: Int): Int {
+    return when (position) {
+      0 -> HomeTab.PATIENTS.key
+      1 -> HomeTab.OVERDUE.key
+      2 -> HomeTab.REPORTS.key
+      else -> throw IllegalArgumentException()
+    }
+  }
 
-  override fun isViewFromObject(view: View, viewKey: Any) = view === viewKey
+  override fun getItemCount() = HomeTab.values().size
+
+  inner class TabViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }
 
 enum class HomeTab(@LayoutRes val key: Int, @StringRes val title: Int) {

@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.tabs.TabLayoutMediator
 import com.jakewharton.rxbinding2.view.RxView
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.screen_home.view.*
@@ -51,7 +52,11 @@ class HomeScreen(context: Context, attrs: AttributeSet) : RelativeLayout(context
     // Keyboard stays open after login finishes, not sure why.
     rootLayout.hideKeyboard()
 
-    viewPager.adapter = HomePagerAdapter(context)
+    val pagerAdapter = HomePagerAdapter(context)
+    viewPager.adapter = pagerAdapter
+    TabLayoutMediator(homeTabLayout, viewPager, TabLayoutMediator.TabConfigurationStrategy { tab, position ->
+      tab.text = pagerAdapter.getPageTitle(position)
+    }).attach()
 
     // The WebView in "Progress" tab is expensive to load. Pre-instantiating
     // it when the app starts reduces its time-to-display.
