@@ -5,6 +5,7 @@
 - Handle cases where the patient ID is not set correctly in the deeplink
 - Show address for overdue patient
 - User can delete patient
+- Add language support for: Tamil (India)
 
 ### Internal
 - Migrated `ScheduleAppointmentSheet` to Mobius
