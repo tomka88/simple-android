@@ -2,7 +2,9 @@
 
 task gitExecutableHooks {
   doLast {
-    Runtime.getRuntime().exec("chmod -R +x .git/hooks/");
+    if (!isWindows()) {
+      Runtime.getRuntime().exec("chmod -R +x .git/hooks/");
+    }
   }
 }
 
@@ -14,3 +16,7 @@ task installGitHooks(type: Copy) {
 preBuild.finalizedBy installGitHooks
 gitExecutableHooks.dependsOn installGitHooks
 clean.dependsOn gitExecutableHooks
+
+static def isWindows() {
+  return System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")
+}
