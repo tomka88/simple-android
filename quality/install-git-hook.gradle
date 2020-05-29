@@ -9,7 +9,7 @@ task gitExecutableHooks {
 }
 
 task installGitHooks(type: Copy) {
-  from new File("$project.rootDir/quality", 'pre-push')
+  from new File("$project.rootDir/quality", hooksFile())
   into { new File(rootProject.rootDir, '.git/hooks') }
 }
 
@@ -19,4 +19,8 @@ clean.dependsOn gitExecutableHooks
 
 static def isWindows() {
   return System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win")
+}
+
+static def hooksFile() {
+  return isWindows() ? "pre-push.bat" : "pre-push"
 }
