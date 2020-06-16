@@ -17,9 +17,9 @@ import org.simple.clinic.util.filterAndUnwrapJust
 import org.simple.clinic.util.toLocalDateAtZone
 import org.simple.clinic.widgets.ScreenCreated
 import org.simple.clinic.widgets.UiEvent
-import org.threeten.bp.Instant
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -58,10 +58,20 @@ class RecentPatientsViewController @Inject constructor(
     val recentPatientsStream = currentFacilityStream
         .switchMap { facility ->
           // Fetching an extra recent patient to know whether we have more than "recentPatientLimit" number of recent patients
-          patientRepository.recentPatients(
-              facilityUuid = facility.uuid,
-              limit = patientConfig.recentPatientLimit + 1
-          )
+          var start: Long? = null
+          patientRepository
+              .recentPatients(
+                  facilityUuid = facility.uuid,
+                  limit = patientConfig.recentPatientLimit + 1
+              )
+              .doOnSubscribe { start = System.currentTimeMillis() }
+              .doOnNext {
+                if (start != null) {
+                  val timeTaken = System.currentTimeMillis() - start!!
+                  Timber.tag("WTF").d("Time to fetch recent patients: ${timeTaken}ms")
+                  start = null
+                }
+              }
         }
         .replay()
         .refCount()
