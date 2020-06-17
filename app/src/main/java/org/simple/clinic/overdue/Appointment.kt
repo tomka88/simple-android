@@ -4,6 +4,7 @@ import android.os.Parcelable
 import androidx.annotation.VisibleForTesting
 import androidx.room.Dao
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
@@ -19,7 +20,19 @@ import org.threeten.bp.Instant
 import org.threeten.bp.LocalDate
 import java.util.UUID
 
-@Entity(tableName = "Appointment")
+@Entity(
+    tableName = "Appointment",
+    indices = [
+      Index("patientUuid", unique = false),
+      Index("createdAt"),
+      Index("updatedAt"),
+      Index("deletedAt"),
+      Index("facilityUuid"),
+      Index("creationFacilityUuid"),
+      Index("status"),
+      Index("appointmentType")
+    ]
+)
 @Parcelize
 data class Appointment(
     @PrimaryKey val uuid: UUID,

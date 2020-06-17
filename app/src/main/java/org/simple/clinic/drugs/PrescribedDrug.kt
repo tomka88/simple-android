@@ -20,7 +20,13 @@ import java.util.UUID
  * from a [ProtocolDrug] or entered manually.
  */
 @Parcelize
-@Entity(indices = [Index("patientUuid", unique = false)])
+@Entity(indices = [
+  Index("patientUuid", unique = false),
+  Index("createdAt"),
+  Index("updatedAt"),
+  Index("deletedAt"),
+  Index("facilityUuid")
+])
 data class PrescribedDrug(
     @PrimaryKey
     val uuid: UUID,

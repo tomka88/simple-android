@@ -133,7 +133,6 @@ data class RecentPatient(
           ) 
           AND P.deletedAt IS NULL
           AND P.status = :patientStatus
-          AND updatedAt BETWEEN :from AND :to
         )
         ORDER BY updatedAt DESC
       """
@@ -155,9 +154,7 @@ data class RecentPatient(
         appointmentStatus: Status,
         appointmentType: AppointmentType,
         patientStatus: PatientStatus,
-        limit: Int,
-        from: Instant,
-        to: Instant
+        limit: Int
     ): Flowable<List<RecentPatient>>
 
     @Query(RECENT_PATIENT_QUERY)

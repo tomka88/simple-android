@@ -20,7 +20,14 @@ import org.threeten.bp.Instant
 import java.util.UUID
 
 @Parcelize
-@Entity(indices = [Index("patientUuid", unique = false)])
+@Entity(indices = [
+  Index("patientUuid", unique = false),
+  Index("createdAt"),
+  Index("updatedAt"),
+  Index("deletedAt"),
+  Index("recordedAt"),
+  Index("facilityUuid")
+])
 data class BloodPressureMeasurement(
     @PrimaryKey
     val uuid: UUID,

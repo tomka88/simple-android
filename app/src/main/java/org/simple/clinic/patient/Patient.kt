@@ -33,7 +33,12 @@ import java.util.UUID
           onUpdate = ForeignKey.CASCADE)
     ],
     indices = [
-      Index("addressUuid")
+      Index("addressUuid"),
+      Index("createdAt"),
+      Index("updatedAt"),
+      Index("deletedAt"),
+      Index("recordedAt"),
+      Index("status")
     ])
 @Parcelize
 data class Patient(
