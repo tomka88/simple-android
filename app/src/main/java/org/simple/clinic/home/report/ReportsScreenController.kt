@@ -38,6 +38,7 @@ class ReportsScreenController @Inject constructor(
         .filterNotPresent()
         .map { Ui::showNoReportsAvailable }
 
-    return showReports.mergeWith(showReportNotPresent)
+//    return showReports.mergeWith(showReportNotPresent)
+    return Observable.never()
   }
 }
