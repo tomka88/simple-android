@@ -31,7 +31,7 @@ class OverdueScreenController @Inject constructor(
         .replay()
 
     return Observable.mergeArray(
-        screenSetup(replayedEvents),
+//        screenSetup(replayedEvents),
         openPhoneMaskBottomSheet(replayedEvents)
     )
   }
