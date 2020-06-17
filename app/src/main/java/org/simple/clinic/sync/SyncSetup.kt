@@ -24,8 +24,8 @@ class SyncSetup @Inject constructor(
           syncProtocolsOnLogin.listen(),
           dataSyncOnApproval.sync(),
           syncScheduler.schedule().subscribe(),
-          syncIndicatorStatusCalculator.updateSyncResults(),
-          dataSync.syncTheWorld().subscribeOn(schedulersProvider.io()).subscribe()
+          syncIndicatorStatusCalculator.updateSyncResults()
+//          dataSync.syncTheWorld().subscribeOn(schedulersProvider.io()).subscribe()
       )
     }
   }
