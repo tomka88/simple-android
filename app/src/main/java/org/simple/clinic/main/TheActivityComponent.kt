@@ -99,11 +99,11 @@ interface TheActivityComponent :
     RegistrationLocationPermissionScreen.Injector,
     RegistrationFacilitySelectionScreen.Injector,
     AddPhoneNumberDialog.Injector,
-    RecentPatientsView.Injector {
+    RecentPatientsView.Injector,
+    OverdueScreen.Injector {
   fun inject(target: TheActivity)
   fun inject(target: HomeScreen)
   fun inject(target: AppLockScreen)
-  fun inject(target: OverdueScreen)
   fun inject(target: PatientEntryScreen)
   fun inject(target: PatientSearchScreen)
   fun inject(target: PatientSearchResultsScreen)
