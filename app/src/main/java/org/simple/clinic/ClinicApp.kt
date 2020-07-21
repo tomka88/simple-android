@@ -7,9 +7,6 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
 import androidx.work.Configuration
 import androidx.work.WorkManager
-import io.reactivex.internal.operators.maybe.MaybeFromCallable
-import io.reactivex.internal.operators.maybe.ProfilingMaybeFromCallable
-import io.reactivex.plugins.RxJavaPlugins
 import org.simple.clinic.activity.CloseActivitiesWhenUserIsUnauthorized
 import org.simple.clinic.analytics.UpdateAnalyticsUserId
 import org.simple.clinic.crash.CrashBreadcrumbsTimberTree
@@ -47,12 +44,12 @@ abstract class ClinicApp : Application(), CameraXConfig.Provider {
     // to a cached thread pool, which will create and reuse threads when
     // necessary.
     ArchTaskExecutor.getInstance().setDelegate(AppArchTaskExecutorDelegate())
-    RxJavaPlugins.setOnMaybeAssembly { maybe ->
-      if (maybe is MaybeFromCallable)
-        ProfilingMaybeFromCallable(maybe)
-      else
-        maybe
-    }
+//    RxJavaPlugins.setOnMaybeAssembly { maybe ->
+//      if (maybe is MaybeFromCallable)
+//        ProfilingMaybeFromCallable(maybe)
+//      else
+//        maybe
+//    }
     WorkManager.initialize(this, Configuration.Builder().build())
 
     appComponent = buildDaggerGraph()
