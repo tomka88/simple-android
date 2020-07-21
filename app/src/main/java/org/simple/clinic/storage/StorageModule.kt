@@ -31,7 +31,7 @@ class StorageModule {
     val executor = ProfilingRoomExecutor()
     return Room.databaseBuilder(appContext, AppDatabase::class.java, "red-db")
         .openHelperFactory(factory)
-        .setQueryExecutor(executor)
+//        .setQueryExecutor(executor)
         .addMigrations(*migrations.toTypedArray())
         .build()
   }
