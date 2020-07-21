@@ -2,7 +2,6 @@ package org.simple.clinic
 
 import android.annotation.SuppressLint
 import android.app.Application
-import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
 import androidx.work.Configuration
@@ -14,7 +13,6 @@ import org.simple.clinic.di.AppComponent
 import org.simple.clinic.platform.analytics.Analytics
 import org.simple.clinic.platform.analytics.AnalyticsReporter
 import org.simple.clinic.platform.crash.CrashReporter
-import org.simple.clinic.util.AppArchTaskExecutorDelegate
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -43,7 +41,7 @@ abstract class ClinicApp : Application(), CameraXConfig.Provider {
     // cases, especially when syncs are ongoing. This changes the thread pool
     // to a cached thread pool, which will create and reuse threads when
     // necessary.
-    ArchTaskExecutor.getInstance().setDelegate(AppArchTaskExecutorDelegate())
+//    ArchTaskExecutor.getInstance().setDelegate(AppArchTaskExecutorDelegate())
     WorkManager.initialize(this, Configuration.Builder().build())
 
     appComponent = buildDaggerGraph()

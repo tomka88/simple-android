@@ -28,8 +28,10 @@ class StorageModule {
       factory: SupportSQLiteOpenHelper.Factory,
       migrations: List<@JvmSuppressWildcards Migration>
   ): AppDatabase {
+    val executor = ProfilingRoomExecutor()
     return Room.databaseBuilder(appContext, AppDatabase::class.java, "red-db")
         .openHelperFactory(factory)
+        .setQueryExecutor(executor)
         .addMigrations(*migrations.toTypedArray())
         .build()
   }
