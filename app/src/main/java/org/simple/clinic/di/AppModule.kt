@@ -32,6 +32,7 @@ import org.simple.clinic.settings.SettingsModule
 import org.simple.clinic.storage.StorageModule
 import org.simple.clinic.summary.PatientSummaryModule
 import org.simple.clinic.sync.DataSyncOnApprovalModule
+import org.simple.clinic.sync.SyncConfigModule
 import org.simple.clinic.sync.SyncModule
 import org.simple.clinic.sync.indicator.SyncIndicatorModule
 import org.simple.clinic.user.SessionModule
@@ -80,7 +81,8 @@ import javax.inject.Named
   FlipperModule::class,
   PinVerificationModule::class,
   SessionModule::class,
-  UuidGeneratorModule::class
+  UuidGeneratorModule::class,
+  SyncConfigModule::class
 ])
 class AppModule(private val appContext: Application) {
 
