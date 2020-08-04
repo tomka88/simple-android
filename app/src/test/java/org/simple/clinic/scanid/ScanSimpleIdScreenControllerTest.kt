@@ -39,15 +39,18 @@ class ScanSimpleIdScreenControllerTest {
 
   @Test
   fun `when bp passport qr code is scanned and it is valid then open patient summary`() {
+    // given
     val scannedCode = UUID.fromString("96d93a33-db68-4435-8c2b-372994a6a325")
     val patientUuid = UUID.fromString("2cdd0e63-0896-48ca-b066-364da2b27337")
     val patient = TestData.patient(uuid = patientUuid).toOptional()
 
     whenever(patientRepository.findPatientWithBusinessId(scannedCode.toString())).thenReturn(Observable.just(patient))
 
+    // when
     setupController()
     uiEvents.onNext(ValidPassportCode(scannedCode))
 
+    // then
     verify(screen).openPatientSummary(patientUuid)
     verifyNoMoreInteractions(screen)
   }
@@ -71,11 +74,14 @@ class ScanSimpleIdScreenControllerTest {
 
   @Test
   fun `if scanned qr code is not a valid uuid then do nothing`() {
+    // given
     val scannedCode = "96d93a33-db68"
 
+    // when
     setupController()
     uiEvents.onNext(ScanSimpleIdScreenQrCodeScanned(scannedCode))
 
+    // then
     verifyZeroInteractions(screen)
   }
 
