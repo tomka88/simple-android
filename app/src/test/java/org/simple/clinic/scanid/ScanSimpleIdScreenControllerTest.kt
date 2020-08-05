@@ -29,7 +29,6 @@ import java.util.UUID
 class ScanSimpleIdScreenControllerTest {
 
   private val uiEvents = PublishSubject.create<UiEvent>()
-  private val ui = mock<ScanSimpleIdUi>()
   private val uiActions = mock<ScanSimpleIdUiActions>()
   private val patientRepository = mock<PatientRepository>()
 
@@ -55,7 +54,7 @@ class ScanSimpleIdScreenControllerTest {
 
     // then
     verify(uiActions).openPatientSummary(patientUuid)
-    verifyNoMoreInteractions(ui, uiActions)
+    verifyNoMoreInteractions(uiActions)
   }
 
   @Test
@@ -72,7 +71,7 @@ class ScanSimpleIdScreenControllerTest {
     // then
     val identifier = Identifier(value = scannedCode.toString(), type = BpPassport)
     verify(uiActions).openAddIdToPatientScreen(identifier)
-    verifyNoMoreInteractions(ui, uiActions)
+    verifyNoMoreInteractions(uiActions)
   }
 
   @Test
@@ -85,7 +84,7 @@ class ScanSimpleIdScreenControllerTest {
     uiEvents.onNext(ScanSimpleIdScreenQrCodeScanned(scannedCode))
 
     // then
-    verifyZeroInteractions(ui, uiActions)
+    verifyZeroInteractions(uiActions)
   }
 
   @Test
@@ -96,7 +95,7 @@ class ScanSimpleIdScreenControllerTest {
 
     // then
     verify(uiActions).hideQrCodeScannerView()
-    verifyNoMoreInteractions(ui, uiActions)
+    verifyNoMoreInteractions(uiActions)
   }
 
   @Test
@@ -107,7 +106,7 @@ class ScanSimpleIdScreenControllerTest {
 
     // then
     verify(uiActions).showQrCodeScannerView()
-    verifyNoMoreInteractions(ui, uiActions)
+    verifyNoMoreInteractions(uiActions)
   }
 
   @Test
@@ -121,7 +120,7 @@ class ScanSimpleIdScreenControllerTest {
 
     // then
     verify(uiActions).hideQrCodeScannerView()
-    verifyNoMoreInteractions(ui, uiActions)
+    verifyNoMoreInteractions(uiActions)
   }
 
   @Test
@@ -136,7 +135,7 @@ class ScanSimpleIdScreenControllerTest {
 
     //then
     verify(uiActions).showShortCodeValidationError(NotEqualToRequiredLength)
-    verifyNoMoreInteractions(ui, uiActions)
+    verifyNoMoreInteractions(uiActions)
   }
 
   @Test
@@ -153,7 +152,7 @@ class ScanSimpleIdScreenControllerTest {
     //then
     verify(uiActions).showShortCodeValidationError(NotEqualToRequiredLength)
     verify(uiActions).hideShortCodeValidationError()
-    verifyNoMoreInteractions(ui, uiActions)
+    verifyNoMoreInteractions(uiActions)
   }
 
   @Test
@@ -168,7 +167,7 @@ class ScanSimpleIdScreenControllerTest {
 
     // then
     verify(uiActions).openPatientShortCodeSearch(validShortCode)
-    verifyNoMoreInteractions(ui, uiActions)
+    verifyNoMoreInteractions(uiActions)
   }
 
   @Test
@@ -182,7 +181,7 @@ class ScanSimpleIdScreenControllerTest {
 
     //then
     verify(uiActions).showShortCodeValidationError(Empty)
-    verifyNoMoreInteractions(ui, uiActions)
+    verifyNoMoreInteractions(uiActions)
   }
 
   private fun setupController() {
@@ -192,15 +191,13 @@ class ScanSimpleIdScreenControllerTest {
         uiActions = uiActions
     )
 
-    val uiRenderer = ScanSimpleIdUiRenderer(ui)
-
     testFixture = MobiusTestFixture(
         events = uiEvents.ofType(),
         init = Init { first(it) },
         update = ScanSimpleIdUpdate(),
         effectHandler = effectHandler.build(),
         defaultModel = ScanSimpleIdModel.create(),
-        modelUpdateListener = uiRenderer::render
+        modelUpdateListener = { /* no-op */ }
     )
 
     testFixture.start()
