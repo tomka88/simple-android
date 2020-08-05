@@ -108,7 +108,8 @@ interface TheActivityComponent :
     OverdueScreen.Injector,
     PatientSearchResultsScreen.Injector,
     PatientSearchScreen.Injector,
-    ForgotPinConfirmPinScreen.Injector {
+    ForgotPinConfirmPinScreen.Injector,
+    PatientSearchView.Injector {
   fun inject(target: TheActivity)
   fun inject(target: HomeScreen)
   fun inject(target: AppLockScreen)
@@ -124,7 +125,6 @@ interface TheActivityComponent :
   fun inject(target: QrCodeScannerView_Old)
   fun inject(target: QrCodeScannerView)
   fun inject(target: SyncIndicatorView)
-  fun inject(target: PatientSearchView)
   fun inject(target: LinkIdWithPatientView)
   fun inject(target: PatientSearchResultItemView)
   fun inject(target: AllPatientsInFacilityView)
