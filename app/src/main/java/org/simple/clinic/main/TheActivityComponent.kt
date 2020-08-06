@@ -109,9 +109,9 @@ interface TheActivityComponent :
     OverdueScreen.Injector,
     PatientSearchResultsScreen.Injector,
     PatientSearchScreen.Injector,
-    ForgotPinConfirmPinScreen.Injector {
+    ForgotPinConfirmPinScreen.Injector,
+    HomeScreen.Injector {
   fun inject(target: TheActivity)
-  fun inject(target: HomeScreen)
   fun inject(target: AppLockScreen)
   fun inject(target: PatientEntryScreen)
   fun inject(target: PatientSummaryScreen)
