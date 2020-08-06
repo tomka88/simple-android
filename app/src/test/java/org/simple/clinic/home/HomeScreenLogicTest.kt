@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import dagger.Lazy
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.ofType
 import io.reactivex.subjects.PublishSubject
@@ -38,6 +39,10 @@ class HomeScreenLogicTest {
   private val appointmentRepository = mock<AppointmentRepository>()
   private val clock = TestUserClock()
 
+  private val loggedInUser = TestData.loggedInUser(
+      uuid = UUID.fromString("751cfb09-92a2-40df-a6b2-b3f82ecd81a1")
+  )
+
   private lateinit var testFixture: MobiusTestFixture<HomeScreenModel, HomeScreenEvent, HomeScreenEffect>
 
   @After
@@ -55,9 +60,6 @@ class HomeScreenLogicTest {
     val facility2 = TestData.facility(
         uuid = UUID.fromString("5b2136b8-11d5-4e20-8703-087281679aee"),
         name = "CHC Nathana"
-    )
-    val loggedInUser = TestData.loggedInUser(
-        uuid = UUID.fromString("751cfb09-92a2-40df-a6b2-b3f82ecd81a1")
     )
     val date = LocalDate.parse("2018-01-01")
 
@@ -84,9 +86,6 @@ class HomeScreenLogicTest {
         uuid = UUID.fromString("e497355e-723c-4b35-b55a-778a6233b720"),
         name = "CHC Buchho"
     )
-    val loggedInUser = TestData.loggedInUser(
-        uuid = UUID.fromString("751cfb09-92a2-40df-a6b2-b3f82ecd81a1")
-    )
     val date = LocalDate.parse("2018-01-01")
 
     whenever(userSession.requireLoggedInUser()).thenReturn(Observable.just(loggedInUser))
@@ -108,7 +107,7 @@ class HomeScreenLogicTest {
     clock.setDate(LocalDate.parse("2018-01-01"))
 
     val effectHandler = HomeScreenEffectHandler(
-        userSession = userSession,
+        currentUser = Lazy { loggedInUser },
         facilityRepository = facilityRepository,
         appointmentRepository = appointmentRepository,
         userClock = clock,

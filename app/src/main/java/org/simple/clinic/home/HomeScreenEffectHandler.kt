@@ -3,16 +3,17 @@ package org.simple.clinic.home
 import com.spotify.mobius.rx2.RxMobius
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
+import dagger.Lazy
 import io.reactivex.ObservableTransformer
 import org.simple.clinic.facility.FacilityRepository
 import org.simple.clinic.overdue.AppointmentRepository
-import org.simple.clinic.user.UserSession
+import org.simple.clinic.user.User
 import org.simple.clinic.util.UserClock
 import org.simple.clinic.util.scheduler.SchedulersProvider
 import java.time.LocalDate
 
 class HomeScreenEffectHandler @AssistedInject constructor(
-    private val userSession: UserSession,
+    private val currentUser: Lazy<User>,
     private val facilityRepository: FacilityRepository,
     private val appointmentRepository: AppointmentRepository,
     private val userClock: UserClock,
@@ -48,7 +49,7 @@ class HomeScreenEffectHandler @AssistedInject constructor(
     return ObservableTransformer { effects ->
       effects
           .observeOn(schedulersProvider.io())
-          .flatMap { userSession.requireLoggedInUser() }
+          .map { currentUser.get() }
           .flatMap { facilityRepository.currentFacility(it) }
           .map(::CurrentFacilityLoaded)
     }
