@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import io.github.inflationx.viewpump.ViewPumpContextWrapper
@@ -26,6 +27,8 @@ import org.simple.clinic.deniedaccess.AccessDeniedScreenKey
 import org.simple.clinic.di.InjectorProviderContextWrapper
 import org.simple.clinic.feature.Feature.LogSavedStateSizes
 import org.simple.clinic.feature.Features
+import org.simple.clinic.forgotpin.createnewpin.ForgotPinCreateNewPinScreenKey
+import org.simple.clinic.home.HomeScreenKey
 import org.simple.clinic.home.patients.LoggedOutOnOtherDeviceDialog
 import org.simple.clinic.login.applock.AppLockScreenKey
 import org.simple.clinic.platform.analytics.Analytics
@@ -43,6 +46,7 @@ import org.simple.clinic.summary.PatientSummaryScreenKey
 import org.simple.clinic.sync.SyncSetup
 import org.simple.clinic.user.UnauthorizeUser
 import org.simple.clinic.user.User
+import org.simple.clinic.user.UserStatus
 import org.simple.clinic.util.LocaleOverrideContextWrapper
 import org.simple.clinic.util.UtcClock
 import org.simple.clinic.util.unsafeLazy
@@ -51,6 +55,28 @@ import java.time.Instant
 import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
+
+@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+fun initialScreenKey(
+    user: User?
+): FullScreenKey {
+  val userDisapproved = user?.status == UserStatus.DisapprovedForSyncing
+
+  val canMoveToHomeScreen = when (user?.loggedInStatus) {
+    User.LoggedInStatus.NOT_LOGGED_IN, User.LoggedInStatus.RESETTING_PIN, User.LoggedInStatus.UNAUTHORIZED -> false
+    User.LoggedInStatus.LOGGED_IN, User.LoggedInStatus.OTP_REQUESTED, User.LoggedInStatus.RESET_PIN_REQUESTED -> true
+    null -> false
+  }
+
+  return when {
+    canMoveToHomeScreen && !userDisapproved -> HomeScreenKey()
+    userDisapproved -> AccessDeniedScreenKey(user?.fullName!!)
+    else -> {
+      return if (user?.loggedInStatus == User.LoggedInStatus.RESETTING_PIN) ForgotPinCreateNewPinScreenKey()
+      else RegistrationPhoneScreenKey()
+    }
+  }
+}
 
 class TheActivity : AppCompatActivity() {
 
@@ -183,7 +209,9 @@ class TheActivity : AppCompatActivity() {
         screenBackgroundRes = R.color.window_background,
         onKeyChange = this::onScreenChanged
     ))
-    return screenRouter.installInContext(baseContext, controller.initialScreenKey())
+
+    val currentUser: User? = intent.getParcelableExtra(EXTRA_CURRENT_USER)
+    return screenRouter.installInContext(baseContext, initialScreenKey(currentUser))
   }
 
   private fun setupDiGraph() {
